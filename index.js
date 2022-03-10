@@ -53,20 +53,6 @@ async function main() {
       return;
     }
 
-    core.info('\nExtracting Jira issue from PR title');
-
-    const capturingGroupContainingIdNum = Number(capturingGroupContainingId);
-
-    const result = re.exec(title);
-    if (!result || !result[capturingGroupContainingIdNum]) {
-      core.setFailed(
-        `\nConfiguration Error: Could not extract Jira issue from PR Title "${title}", ensure that the provided "capturing-group-containing-id" is correct`
-      );
-      return;
-    }
-
-    const fullJiraUrl = `${jiraUrl}/browse/${result[capturingGroupContainingIdNum]}`;
-
     const { data } = await octokit.rest.pulls.get({
       ...context.repo,
       pull_number: context.payload.pull_request.number,
@@ -76,6 +62,20 @@ async function main() {
       core.setFailed('\nFail: PR Description is required.');
       return;
     }
+
+    core.info('\nExtracting Jira issue from PR title');
+
+    const capturingGroupContainingIdNum = Number(capturingGroupContainingId);
+
+    const result = re.exec(title);
+    if (!result || !result[capturingGroupContainingIdNum]) {
+      core.info(
+        `\nCould not extract Jira issue from PR Title "${title}", ensure that the provided "capturing-group-containing-id" is correct`
+      );
+      return;
+    }
+
+    const fullJiraUrl = `${jiraUrl}/browse/${result[capturingGroupContainingIdNum]}`;
 
     if (data.body.includes(fullJiraUrl)) {
       core.info(
