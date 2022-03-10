@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "description": "See CONTRIBUTING.md for how to contribute to this project",
+  "scripts": {
+    "build": "ncc build index.js --license licenses.txt"
+  },
+  "bugs": {
+    "url": "https://github.com/jameshenry/validate-pr-title/issues"
+  },
+  "homepage": "https://github.com/jameshenry/validate-pr-title#readme",
+  "dependencies": {
+    "@actions/core": "^1.4.0",
+    "@actions/github": "^5.0.0",
+    "@vercel/ncc": "^0.29.0"
+  }
+}

@@ -1,0 +1,33 @@
+name: Validate PR Title
+description: Validates the PR title to ensure it meets the contributing guidelines for the repo.
+
+inputs:
+  github-token:
+    description: The value of secrets.GITHUB_TOKEN
+    type: string
+    required: true
+  jira-url:
+    description: The base URL of the relevant Jira instance to link to in the comment
+    type: string
+    required: true
+  match-and-extract-regexp-string:
+    description: A stringified RegExp to match against, which should also contain a capturing group containing the structure of the Jira ID to extract
+    type: string
+    required: true
+  capturing-group-containing-id:
+    description: (Required if "update-description-with-link" is true) Specify which capturing group (by number) within the given `match-and-extract-regexp-string` input contains the structure of the Jira ID
+    type: number
+    required: false
+  update-description-with-link:
+    description: Whether or not the matched and extracted Jira ID should be appended to the PR description
+    type: boolean
+    required: true
+    default: true
+
+runs:
+  using: node16
+  main: dist/index.js
+
+branding:
+  icon: "terminal"
+  color: "blue"
