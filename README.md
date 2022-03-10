@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: jameshenry/validate-pr-title@v0.1.0
+      - uses: mdx-dev/validate-pr-title@v0.1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           jira-url: https://acme.atlassian.net

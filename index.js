@@ -55,15 +55,17 @@ async function main() {
 
     core.info("\nExtracting Jira issue from PR title");
 
+    const capturingGroupContainingIdNum = Number(capturingGroupContainingId);
+
     const result = re.exec(title);
-    if (!result || !result[Number(capturingGroupContainingId)]) {
+    if (!result || !result[capturingGroupContainingIdNum]) {
       core.setFailed(
         `\nConfiguration Error: Could not extract Jira issue from PR Title "${title}", ensure that the provided "capturing-group-containing-id" is correct`
       );
       return;
     }
 
-    const fullJiraUrl = `${jiraUrl}/browse/${result[3]}`;
+    const fullJiraUrl = `${jiraUrl}/browse/${result[capturingGroupContainingIdNum]}`;
 
     const { data } = await octokit.rest.pulls.get({
       ...context.repo,
