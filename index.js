@@ -58,10 +58,12 @@ async function main() {
       pull_number: context.payload.pull_request.number,
     });
 
-    if (!data.body) {
+    if (data.body === '') {
       core.setFailed('\nFail: PR Description is required.');
       return;
     }
+
+    core.info(data.body);
 
     core.info('\nExtracting Jira issue from PR title');
 
