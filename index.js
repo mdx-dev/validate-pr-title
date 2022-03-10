@@ -63,6 +63,7 @@ async function main() {
       return;
     }
 
+    core.info('sample of body:');
     core.info(data.body);
 
     core.info('\nExtracting Jira issue from PR title');
