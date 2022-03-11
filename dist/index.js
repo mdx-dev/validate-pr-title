@@ -8474,24 +8474,24 @@ const github = __nccwpck_require__(5438);
 
 async function main() {
   try {
-    const token = core.getInput("github-token", { required: true });
-    const jiraUrl = core.getInput("jira-url", { required: true });
+    const token = core.getInput('github-token', { required: true });
+    const jiraUrl = core.getInput('jira-url', { required: true });
     const matchAndExtractRegexpString = core.getInput(
-      "match-and-extract-regexp-string",
+      'match-and-extract-regexp-string',
       { required: true }
     );
     // NOTE: This will be required if update-description-with-link is true, so we check for this further down
     const capturingGroupContainingId = core.getInput(
-      "capturing-group-containing-id",
+      'capturing-group-containing-id',
       { required: false }
     );
     const updateDescriptionWithLink = core.getInput(
-      "update-description-with-link",
+      'update-description-with-link',
       { required: true }
     );
     const context = github.context;
     const octokit = github.getOctokit(token, {
-      previews: ["ant-man-preview", "flash-preview"],
+      previews: ['ant-man-preview', 'flash-preview'],
     });
 
     const title = context.payload.pull_request.title;
@@ -8508,7 +8508,7 @@ async function main() {
       `\nPR Title "${title}" matched the configured regexp "${matchAndExtractRegexpString}"`
     );
 
-    if (updateDescriptionWithLink !== "true") {
+    if (updateDescriptionWithLink !== 'true') {
       core.info(
         `\nSkipping updating the PR description with a link to the JIRA issue, because "update-description-with-link" is not set to true`
       );
@@ -8523,38 +8523,46 @@ async function main() {
       return;
     }
 
-    core.info("\nExtracting Jira issue from PR title");
+    const { data } = await octokit.rest.pulls.get({
+      ...context.repo,
+      pull_number: context.payload.pull_request.number,
+    });
+
+    if (data.body === '') {
+      core.setFailed('\nFail: PR Description is required.');
+      return;
+    }
+
+    core.info('sample of body:');
+    core.info(data.body);
+
+    core.info('\nExtracting Jira issue from PR title');
 
     const capturingGroupContainingIdNum = Number(capturingGroupContainingId);
 
     const result = re.exec(title);
     if (!result || !result[capturingGroupContainingIdNum]) {
-      core.setFailed(
-        `\nConfiguration Error: Could not extract Jira issue from PR Title "${title}", ensure that the provided "capturing-group-containing-id" is correct`
+      core.info(
+        `\nCould not extract Jira issue from PR Title "${title}", ensure that the provided "capturing-group-containing-id" is correct`
       );
       return;
     }
 
     const fullJiraUrl = `${jiraUrl}/browse/${result[capturingGroupContainingIdNum]}`;
 
-    const { data } = await octokit.rest.pulls.get({
-      ...context.repo,
-      pull_number: context.payload.pull_request.number,
-    });
-
     if (data.body.includes(fullJiraUrl)) {
       core.info(
-        "\nPR description already contains the derived Jira link, no further action required"
+        '\nPR description already contains the derived Jira link, no further action required'
       );
       return;
     }
 
     // If we got to this point there is either no existing jira link, or the link has changed
-    const markerComment = "<!-- automated-jira-link-start -->";
+    const markerComment = '<!-- automated-jira-link-start -->';
 
     if (data.body.includes(markerComment)) {
       core.info(
-        "\nExisting jira link found which differs from the latest derived one, updating the PR description..."
+        '\nExisting jira link found which differs from the latest derived one, updating the PR description...'
       );
       const [bodyWithoutJiraLink] = data.body.split(markerComment);
       data.body = bodyWithoutJiraLink;
@@ -8568,13 +8576,13 @@ async function main() {
 ${markerComment}
 ---
 
-**Update from :robot:** 
+**Update from :robot:**
 
 Jira ticket link extracted from PR title: [${fullJiraUrl}](${fullJiraUrl})
 `,
     });
 
-    core.info("\nUpdated PR description with latest derived Jira link");
+    core.info('\nUpdated PR description with latest derived Jira link');
   } catch (error) {
     core.error(error);
     core.setFailed(error.message);
