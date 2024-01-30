@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "See CONTRIBUTING.md for how to contribute to this project",
   "scripts": {
     "build": "ncc build index.js --license licenses.txt"
